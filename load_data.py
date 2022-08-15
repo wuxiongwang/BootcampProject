@@ -25,28 +25,6 @@ parser.add_argument('--category', help='python ./load_data.py --category Categor
 args = parser.parse_args()
 print("You parsed the following arguments: ", args) # Debugging line, to be dropped in the final script
 
-""" Connect to the database. REMEMBER YOU HAVE TO BE CONNECTED TO EMORY VPN """
-config = {
-  'user': 'NET ID',
-  'password': 'yourPassword',
-  'host': 'msba-bootcamp-prod.cneftpdd0l3q.us-east-1.rds.amazonaws.com',
-  'database': 'MSBA_Team13',
-  'raise_on_warnings': True
-}
-
-# Connect to the database with
-try:
-    cnx = mysql.connector.connect(**config)
-except mysql.connector.Error as err:
-    if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-        print("Something is wrong with your user name or password")
-    elif err.errno == errorcode.ER_BAD_DB_ERROR:
-        print("Database does not exist")
-    else:
-        print(err)
-else:
-    cnx.close()
-
 
 """get the gzipped file name from the website link."""
 # Get the category from the parsed argument
@@ -73,7 +51,7 @@ def getCategoryURL(category: str) ->str:
 
 # Download the data file from the web
 
-url = getCategoryURL("gift_card")
+url = getCategoryURL(category)
 
 #Get file name from the url
 def getDataFilename_fromLink(weblink: str) -> str:
@@ -93,8 +71,31 @@ print("The gzipped file saved under the name: ", filename)
 with gzip.open(filename, 'rb') as f:
     dataFrame1 = pd.read_csv(f, sep = '\t')
 
-# Create a table in the database
-DB_NAME = 'MSBA_Team13'
+"""# Create a table in the database
+DB_NAME = 'MSBA_Team13'"""
+
+""" Connect to the database. REMEMBER YOU HAVE TO BE CONNECTED TO EMORY VPN """
+config = {
+  'user': 'NET ID',
+  'password': 'yourPassword',
+  'host': 'msba-bootcamp-prod.cneftpdd0l3q.us-east-1.rds.amazonaws.com',
+  'database': 'MSBA_Team13',
+  'raise_on_warnings': True
+}
+
+# Connect to the database with
+try:
+    cnx = mysql.connector.connect(**config)
+except mysql.connector.Error as err:
+    if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+        print("Something is wrong with your user name or password")
+    elif err.errno == errorcode.ER_BAD_DB_ERROR:
+        print("Database does not exist")
+    else:
+        print(err)
+else:
+    cnx.close()
+
 # Creeate an empty dictionary to store table names and their respective SQL design codes 
 TABLES = {}
 # Design the tables using the SQL scripts
