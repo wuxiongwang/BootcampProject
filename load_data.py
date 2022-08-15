@@ -71,13 +71,14 @@ print("The gzipped file saved under the name: ", filename)
 with gzip.open(filename, 'rb') as f:
     dataFrame1 = pd.read_csv(f, sep = '\t')
 
+print("25th row: ", tuple(str(element) for element in dataFrame1.iloc[24]))
 """# Create a table in the database
 DB_NAME = 'MSBA_Team13'"""
 
 """ Connect to the database. REMEMBER YOU HAVE TO BE CONNECTED TO EMORY VPN """
 config = {
   'user': 'NET ID',
-  'password': 'yourPassword',
+  'password': 'YourPassword',
   'host': 'msba-bootcamp-prod.cneftpdd0l3q.us-east-1.rds.amazonaws.com',
   'database': 'MSBA_Team13',
   'raise_on_warnings': True
@@ -102,20 +103,20 @@ TABLES = {}
 TABLES['reviews_raw'] = (
     "CREATE TABLE `reviews_raw` ("
     "  `marketplace` varchar(32),"
-    "  `customer_id` int(16) NOT NULL,"
+    "  `customer_id` bigint,"
     "  `review_id` varchar(32) NOT NULL,"
-    "  `product_id` varchar(16) NOT NULL,"
-    "  `product_parent` int(16) NOT NULL,"
-    "  `product_title` varchar(256) NOT NULL,"
-    "  `product_category` varchar(32) NOT NULL,"
-    "  `star_rating` int(1) NOT NULL,"
-    "  `helpful_votes` int(10) NOT NULL,"
-    "  `total_votes` int(10) NOT NULL,"
-    "  `vine` enum('Y','N') NOT NULL,"
-    "  `verified_purchase` enum('Y','N') NOT NULL,"
-    "  `review_headline` varchar(128) NOT NULL,"
-    "  `review_body` varchar(128) NOT NULL,"
-    "  `review_date` date NOT NULL,"
+    "  `product_id` varchar(16),"
+    "  `product_parent` bigint,"
+    "  `product_title` varchar(256),"
+    "  `product_category` varchar(64),"
+    "  `star_rating` int(1),"
+    "  `helpful_votes` int(10),"
+    "  `total_votes` int(10),"
+    "  `vine` enum('Y','N'),"
+    "  `verified_purchase` enum('Y','N'),"
+    "  `review_headline` varchar(256),"
+    "  `review_body` varchar(2048),"
+    "  `review_date` date,"
     "  PRIMARY KEY (`review_id`)"
     ") ENGINE=InnoDB")
 
@@ -164,14 +165,15 @@ add_review = """INSERT INTO reviews_raw(
                                     review_date)
                                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
+print("Writing the data into the Database! Please wait...")
 for i in range(dataFrame1.shape[0]):
     data_review = tuple(str(element) for element in dataFrame1.iloc[i])
+    print(i,"th row added")
     # Insert new review
     cursor.execute(add_review, data_review)
+    cnx.commit()
 
 
 # Make sure data is committed to the database
-cnx.commit()
-
 cursor.close()
 cnx.close()
