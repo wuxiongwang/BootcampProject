@@ -168,7 +168,6 @@ add_review = """INSERT INTO reviews_raw(
 print("Writing the data into the Database! Please wait...")
 for i in range(dataFrame1.shape[0]):
     data_review = tuple(str(element) for element in dataFrame1.iloc[i])
-    print(i,"th row added")
     # Insert new review
     cursor.execute(add_review, data_review)
     cnx.commit()
