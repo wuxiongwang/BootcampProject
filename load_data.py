@@ -71,8 +71,9 @@ with gzip.open(filename, 'rb') as f:
     dataFrame1 = pd.read_csv(f, sep = '\t')
 
 my_conn = sqlalchemy.create_engine(
-    "mysql://username:password@hostname:portNumber/DatabaseName")
+    "mysql://username:password@hostname:port_number/database_name")
 
+# write the dataframe to the table named "reviews_raw" in the databse named "database_name"
 print("Writing the data into the Database! Please wait...")
 dataFrame1.to_sql(con=my_conn,name='reviews_raw',if_exists='append',index=False)
 print("Done!")
