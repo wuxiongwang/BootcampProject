@@ -77,10 +77,10 @@ DB_NAME = 'MSBA_Team13'"""
 
 """ Connect to the database. REMEMBER YOU HAVE TO BE CONNECTED TO EMORY VPN """
 config = {
-  'user': 'JNSHIMY',
-  'password': 'ZS674K81',
-  'host': 'msba-bootcamp-prod.cneftpdd0l3q.us-east-1.rds.amazonaws.com',
-  'database': 'MSBA_Team13',
+  'user': 'username',
+  'password': 'password',
+  'host': 'hostname',
+  'database': 'DatabaseName',
   'raise_on_warnings': True
 }
 
