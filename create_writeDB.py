@@ -97,7 +97,7 @@ except mysql.connector.Error as err:
 else:
     cnx.close()
 
-# Creeate an empty dictionary to store table names and their respective SQL design codes 
+# Create an empty dictionary to store table names and their respective SQL design codes 
 TABLES = {}
 # Design the tables using the SQL scripts
 TABLES['reviews_raw'] = (
@@ -164,13 +164,14 @@ add_review = """INSERT INTO reviews_raw(
                                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
 print("Writing the data into the Database! Please wait...")
-for row_number in range(41780,dataFrame1.shape[0]):
+for row_number in range(dataFrame1.shape[0]):
     data_review = tuple(str(element) for element in dataFrame1.iloc[row_number])
-    if((row_number+1)%5000==0):
-        print(row_number+1," rows added")
-    # Insert new review row
+    # Insert new review row into the database
     cursor.execute(add_review, data_review)
     cnx.commit()
+    # Communicate the progrss for every 5000 rows uploaded
+    if((row_number+1)%5000==0):
+        print(row_number+1," rows added")
 
 
 # Make sure data is committed to the database
