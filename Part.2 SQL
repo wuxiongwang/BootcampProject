@@ -1,0 +1,133 @@
+USE MSBA_Team13;
+
+##Pt.1 Missing values
+START TRANSACTION;
+CREATE TABLE reviews AS
+SELECT *
+FROM reviews_raw
+UNION ALL 
+SELECT *
+FROM MSBA_DB1.reviews_pet_products;
+
+# discover columns with missing values
+SELECT *
+FROM reviews
+WHERE product_title IS NULL
+OR product_parent IS NULL
+OR star_rating IS NULL OR helpful_votes IS NULL
+OR total_votes IS NULL OR vine IS NULL
+OR verified_purchase IS NULL OR review_body IS NULL
+OR review_headline IS NULL OR review_date IS NULL;
+
+# fill ll the columns that have missing values with 'None'
+START TRANSACTION;
+UPDATE reviews
+SET product_title = 'None'
+WHERE product_title IS NULL;
+
+UPDATE reviews
+SET product_title = 'None'
+WHERE product_title IS NULL;
+
+UPDATE reviews
+SET review_headline = 'None'
+WHERE review_headline IS NULL;
+
+UPDATE reviews
+SET review_body = 'None'
+WHERE review_body IS NULL;
+
+##Pt.2 Data types
+START transaction;
+ALTER TABLE reviews
+MODIFY COLUMN review_date DATE;
+ALTER TABLE reviews
+MODIFY COLUMN marketplace varchar(256);
+ALTER TABLE reviews
+MODIFY COLUMN customer_id INT;
+ALTER TABLE reviews
+MODIFY COLUMN product_id varchar(256);
+ALTER TABLE reviews
+MODIFY COLUMN review_id varchar(256);
+ALTER TABLE reviews
+MODIFY COLUMN product_parent int;
+ALTER TABLE reviews
+MODIFY COLUMN product_title varchar(256);
+ALTER TABLE reviews
+MODIFY COLUMN product_category varchar(256);
+ALTER TABLE reviews
+MODIFY COLUMN star_rating INT;
+ALTER TABLE reviews
+MODIFY COLUMN helpful_votes INT;
+ALTER TABLE reviews
+MODIFY COLUMN total_votes INT;
+ALTER TABLE reviews
+MODIFY COLUMN vine INT;
+ALTER TABLE reviews
+MODIFY COLUMN verified_purchase INT;
+ALTER TABLE reviews
+MODIFY COLUMN review_headline varchar(256);
+ALTER TABLE reviews
+MODIFY COLUMN review_body varchar(256);
+
+## We choose to use review_id as the primary key
+ALTER TABLE reviews
+ADD PRIMARY KEY (review_id);
+
+##Pt.3 Text Processing
+# Select and see the headline that not start with letters
+SELECT review_headline
+FROM reviews
+WHERE review_headline NOT REGEXP '^[A-Z]';
+
+# Remove leading and ending trailing blanks
+START TRANSACTION;
+UPDATE reviews
+SET review_headline = LTRIM(review_headline);
+UPDATE reviews
+SET review_headline = RTRIM(review_headline);
+
+# Initial cap the review_headline column
+UPDATE reviews
+SET review_headline = CONCAT(UPPER(LEFT(review_headline,1)), LOWER(SUBSTRING(review_headline,2,LENGTH(review_headline))));
+
+# Check if data has any special characters
+SELECT review_headline
+FROM reviews
+WHERE review_headline REGEXP '[!.$()#*:=<-~^]';
+
+# remove double quoto
+UPDATE reviews
+SET review_headline = REPLACE(review_headline,'"','');
+UPDATE reviews
+SET review_body = REPLACE(review_body,'"','');
+
+# remove special characters
+UPDATE reviews
+SET review_headline = REGEXP_REPLACE(review_headline,'[!.$()#*&?-]','');
+UPDATE reviews
+SET review_body = REGEXP_REPLACE(review_body,'[!.$()#*&?-]','');
+
+##Pt.4 Standarlization
+### In both tables, the "vine" and "verified_purchase" columns have binary values: N and Y
+### The Binary values could be better represented as 0 or 1
+### I feel like changing to 0 or 1 would be convenient for counting unique values
+UPDATE reviews
+SET vine = 0
+WHERE vine = 'N';
+UPDATE reviews
+SET vine = 1
+WHERE vine = 'Y';
+UPDATE reviews
+SET verified_purchase = 0
+WHERE verified_purchase = 'N';
+UPDATE reviews
+SET verified_purchase = 1
+WHERE verified_purchase = 'Y';
+
+##Pt.5 Reduant columns
+#Both tables are in the US marketplace, so we drop the marketplace column from one table
+SELECT DISTINCT marketplace
+FROM reviews_raw;
+ALTER TABLE reviews_raw
+DROP COLUMN marketplace;
